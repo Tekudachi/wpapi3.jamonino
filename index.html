@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Teléfono en WordPress</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container my-5">
+        <h1 class="text-center">Editar Teléfono en WordPress</h1>
+        <p class="text-center">Introduce un nuevo número de teléfono para actualizar el contenido de la página.</p>
+
+        <!-- Formulario -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form id="editPhoneForm">
+                    <div class="form-group">
+                        <label for="phone">Nuevo número de teléfono:</label>
+                        <input type="text" id="phone" class="form-control" placeholder="643 735 988" required pattern="\d{3} \d{3} \d{3}">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Actualizar Teléfono</button>
+                    <button type="button" id="clear" class="btn btn-secondary btn-block mt-2">Limpiar</button>
+                </form>
+                <div id="responseMessage" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Limpiar el campo de texto
+            $("#clear").on("click", function () {
+                $("#phone").val("");
+                $("#responseMessage").html("");
+            });
+
+            // Manejar el envío del formulario
+            $("#editPhoneForm").on("submit", function (e) {
+                e.preventDefault();
+
+                const newPhone = $("#phone").val();
+                const apiUrl = "http://www.wpapi3.lan/publish.php"; // URL del backend
+
+                // Validar formato del número de teléfono
+                const phonePattern = /^\d{3} \d{3} \d{3}$/;
+                if (!phonePattern.test(newPhone)) {
+                    $("#responseMessage").html(`<div class="alert alert-danger">Formato inválido. Use 3 grupos de 3 números separados por espacios (ej: 643 735 988).</div>`);
+                    return;
+                }
+
+                // Enviar solicitud POST al backend
+                $.ajax({
+                    url: apiUrl,
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ phone: newPhone }),
+                    success: function (response) {
+                        if (response.success) {
+                            $("#responseMessage").html(`<div class="alert alert-success">${response.message}</div>`);
+                        } else {
+                            $("#responseMessage").html(`<div class="alert alert-danger">${response.message}</div>`);
+                        }
+                    },
+                    error: function () {
+                        $("#responseMessage").html(`<div class="alert alert-danger">Error al comunicar con el backend.</div>`);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
